@@ -1,75 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ChatChat – Lodestone Support</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>✨ ChatChat – Lodestone Support ✨</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --primary-color: #007bff;
+          --secondary-color: #f0f4f8;
+          --background-color: #ffffff;
+          --text-color: #333;
+          --user-message-bg: var(--primary-color);
+          --user-message-text: #ffffff;
+          --bot-message-bg: var(--secondary-color);
+          --bot-message-text: #333;
+          --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+          --border-radius: 15px;
+          --input-bg: #f9f9f9;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            height: 100%; font-family: 'Poppins', sans-serif; background-color: #e9eef2;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .chat-container {
+            width: 100%; max-width: 450px; height: 85vh; max-height: 700px;
+            background-color: var(--background-color); border-radius: var(--border-radius);
+            box-shadow: var(--container-shadow); display: flex; flex-direction: column;
+            overflow: hidden; transition: all 0.3s ease;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white; padding: 15px 20px; /* Adjusted padding slightly */
+            text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+            position: relative; /* Needed for potential absolute positioning inside if required */
+        }
+        header h1 { font-size: 1.5em; font-weight: 600; margin-bottom: 5px; letter-spacing: 1px; }
+        header p { font-size: 0.9em; opacity: 0.9; font-weight: 300; margin-bottom: 10px; /* Added margin-bottom for spacing */ }
+
+        /* --- NEW CSS FOR DEVELOPER TEXT & SHIMMER --- */
+        .developer-credit {
+            font-size: 1.0em; /* Make it large */
+            font-weight: 500;
+            margin-top: 10px; /* Space from elements above */
+            text-align: center;
+        }
+        .developer-credit a {
+            text-decoration: none;
+            color: #ffffff; /* Initial color */
+            background: linear-gradient(to right, #ffd700, #ffffff, #ffd700); /* Gold/White gradient for shimmer */
+            background-size: 200% auto;
+            color: #000; /* Use color:transparent if text color should be bg */
+            background-clip: text;
+             -webkit-background-clip: text; /* For older webkit browsers */
+             -webkit-text-fill-color: transparent; /* Use background for text color */
+
+            animation: shimmer 3s linear infinite; /* Apply the shimmer animation */
+            display: inline-block; /* Needed for transform/animations? Not always */
+            opacity: 0.9; /* Slightly less intense than main text */
+            transition: opacity 0.3s ease; /* Smooth hover */
+        }
+        .developer-credit a:hover {
+            opacity: 1;
+             /* Optional: could pause animation or change color on hover */
+        }
+
+        /* Shimmer Animation */
+        @keyframes shimmer {
+          to {
+            background-position: -200% center; /* Move the background gradient */
+          }
+        }
+        /* --- END OF NEW CSS --- */
+
+        .chat-box {
+            flex-grow: 1; padding: 20px 15px; overflow-y: auto; background-color: var(--background-color);
+            display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;
+        }
+        .chat-box::-webkit-scrollbar { width: 6px; }
+        .chat-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .chat-box::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .chat-box::-webkit-scrollbar-thumb:hover { background: #aaa; }
+        .message {
+            padding: 10px 15px; border-radius: var(--border-radius); max-width: 75%;
+            line-height: 1.4; font-size: 0.95em; word-wrap: break-word;
+            opacity: 0; transform: translateY(10px); animation: fadeIn 0.4s ease forwards;
+        }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        .message.user {
+            background-color: var(--user-message-bg); color: var(--user-message-text);
+            align-self: flex-end; border-bottom-right-radius: 5px;
+        }
+        .message.bot {
+            background-color: var(--bot-message-bg); color: var(--bot-message-text);
+            align-self: flex-start; border-bottom-left-radius: 5px;
+        }
+         .message.system { /* Style for system messages like errors/connection */
+            font-style: italic;
+            color: #888;
+            font-size: 0.85em;
+            text-align: center;
+            background-color: transparent;
+            width: 100%;
+            max-width: 100%;
+            align-self: center;
+            padding: 5px 0;
+        }
+        .message strong {
+            font-weight: 600; display: block; margin-bottom: 3px; font-size: 0.8em; opacity: 0.8;
+        }
+        .message.bot strong { color: var(--primary-color); }
+        .typing-indicator {
+            padding: 10px 15px; font-style: italic; color: #888; font-size: 0.9em;
+            align-self: flex-start; opacity: 0; height: 0; /* Start hidden and with no height */
+            transition: opacity 0.3s ease, height 0.3s ease;
+            overflow: hidden; /* Prevent content from showing during height transition */
+        }
+        .typing-indicator.visible {
+            opacity: 1;
+            height: auto; /* Adjust to content height */
+             padding: 10px 15px; /* Restore padding when visible */
+        }
+        .typing-indicator .dot {
+            display: inline-block; width: 4px; height: 4px; background-color: #aaa;
+            border-radius: 50%; margin-left: 2px; animation: blink 1.4s infinite both;
+        }
+        .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
+        .chat-form {
+            display: flex; padding: 15px; border-top: 1px solid #e0e0e0;
+            background-color: #fdfdfd; flex-shrink: 0;
+        }
+        #user-input {
+            flex-grow: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px;
+            font-size: 1em; margin-right: 10px; outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; background-color: var(--input-bg);
+        }
+        #user-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); }
+        .chat-form button {
+            background-color: var(--primary-color); color: white; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 1.2em; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .chat-form button:hover { background-color: #0056b3; }
+        .chat-form button:active { transform: scale(0.95); }
+        .chat-form button::before { content: '➤'; font-size: 16px; line-height: 1; }
+        @media (max-width: 500px) {
+            body { align-items: stretch; }
+            .chat-container { max-width: 100%; height: 100vh; max-height: 100%; border-radius: 0; box-shadow: none; }
+            header { padding: 15px; }
+            header h1 { font-size: 1.3em; }
+             /* Adjust developer credit font size on smaller screens */
+            .developer-credit { font-size: 0.85em; margin-top: 8px; }
+            .chat-box { padding: 15px 10px; } .chat-form { padding: 10px; }
+            #user-input { padding: 8px 12px; } .chat-form button { width: 36px; height: 36px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="chat-container">
-    <header>
-      <h1>💬 ChatChat</h1>
-      <p>Welcome to Lodestone's support chat. Ask me anything about Lodestone!</p>
-    </header>
+    <div class="chat-container">
+        <header>
+            <h1>✨ ChatChat ✨</h1>
+            <p>Hi there! I'm Sintayehu, your Lodestone guide. How can I help?</p>
 
-    <div id="chat-box" class="chat-box"></div>
+            <!-- --- NEW DEVELOPER CREDIT ELEMENT --- -->
+            <div class="developer-credit">
+                <a href="https://sintayehu.dev" target="_blank" rel="noopener noreferrer">
+                      Sintayehu.dev<br/>
+                    Developed by: Sintayehu Fantaye
+                </a>
+            </div>
+            <!-- --- END OF NEW ELEMENT --- -->
 
-    <div id="typing-indicator" class="typing-indicator" style="display: none;">
-      Alex is typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+        </header>
+
+        <div id="chat-box" class="chat-box">
+            <!-- Initial bot message for immediate feedback -->
+            <div class="message bot">
+                <strong>Sintayehu from Lodestone:</strong> Welcome! Feel free to ask me anything about Lodestone. 😊
+            </div>
+        </div>
+
+        <div id="typing-indicator" class="typing-indicator">
+            Sintayehu is typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+        </div>
+
+        <form id="chat-form" class="chat-form">
+            <input
+                type="text"
+                id="user-input"
+                placeholder="Ask Sintayehu something..."
+                autocomplete="off"
+                required
+                aria-label="Your message"
+            />
+            <button type="submit" aria-label="Send Message"></button>
+        </form>
     </div>
 
-    <form id="chat-form" class="chat-form">
-      <input
-        type="text"
-        id="user-input"
-        placeholder="Type your message..."
-        autocomplete="off"
-        required
-      />
-      <button type="submit">Send</button>
-    </form>
-  </div>
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const chatForm = document.getElementById("chat-form");
+        const userInput = document.getElementById("user-input");
+        const typingIndicator = document.getElementById("typing-indicator");
+        let socket = null;
 
-  <script>
+        function connectWebSocket() {
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${wsProtocol}//${window.location.host}/ws/chat`;
+            console.log(`Attempting to connect to: ${wsUrl}`);
+            socket = new WebSocket(wsUrl);
 
-const socket = new WebSocket("ws://localhost:8000/ws/guest123");
+            socket.onopen = function(event) {
+                console.log("WebSocket Connection Opened!");
+                appendMessage("system", "Connected to Sintayehu!");
+                userInput.disabled = false;
+                userInput.focus();
+            };
 
-socket.onmessage = function (event) {
-    if (event.data === "__typing__") {
-        showTypingIndicator(true);
-    } else {
-        showTypingIndicator(false);
-        appendMessage("bot", event.data);
-    }
-};
+            socket.onmessage = function (event) {
+                if (event.data === "__typing__") {
+                    showTypingIndicator(true);
+                } else {
+                    showTypingIndicator(false);
+                    setTimeout(() => { appendMessage("bot", event.data); }, 150);
+                }
+            };
 
-document.getElementById("send-btn").addEventListener("click", function () {
-    const input = document.getElementById("user-input");
-    const text = input.value.trim();
-    if (text) {
-        appendMessage("user", text);
-        socket.send(text);
-        input.value = "";
-    }
-});
+            socket.onclose = function(event) {
+                console.warn("WebSocket Connection Closed.", event);
+                showTypingIndicator(false);
+                appendMessage("system", `Connection lost. ${event.reason || 'Trying to reconnect...'}`);
+                userInput.disabled = true;
+                setTimeout(connectWebSocket, 5000);
+            };
 
-function appendMessage(sender, text) {
-    const container = document.getElementById("chat-container");
-    const msg = document.createElement("div");
-    msg.classList.add("message", sender);
-    msg.innerHTML = sender === "bot" 
-        ? `<strong>Alex (Lodestone):</strong> ${text}`
-        : `<strong>You:</strong> ${text}`;
-    container.appendChild(msg);
-    container.scrollTop = container.scrollHeight;
-}
+            socket.onerror = function(error) {
+                console.error("WebSocket Error:", error);
+                appendMessage("system", "Connection error. Could not reach the chat server.");
+                showTypingIndicator(false);
+                userInput.disabled = true;
+            };
+        }
 
-function showTypingIndicator(show) {
-    const typing = document.getElementById("typing-indicator");
-    typing.style.display = show ? "block" : "none";
-}
+        chatForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const text = userInput.value.trim();
+            if (text && socket && socket.readyState === WebSocket.OPEN) {
+                appendMessage("user", text);
+                socket.send(text);
+                userInput.value = "";
+                userInput.focus();
+                showTypingIndicator(false);
+            } else if (!socket || socket.readyState !== WebSocket.OPEN) {
+                appendMessage("system", "Cannot send message. Not connected.");
+            }
+        });
+
+        function appendMessage(sender, text) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender);
+
+            // IMPORTANT SECURITY FIX: Escape HTML properly before inserting!
+            const tempDiv = document.createElement('div'); // Use a temporary element for safe text assignment
+            tempDiv.textContent = text; // Let the browser handle safe text assignment
+            const safeTextHTML = tempDiv.innerHTML; // Get the browser-escaped HTML
+
+            let messageContent = '';
+            if (sender === "bot") {
+                 // Ensure the bot name is consistent here too if needed
+                 messageContent = `<strong>Sintayehu (Lodestone):</strong> ${safeTextHTML}`;
+            } else if (sender === "user") {
+                messageContent = `<strong>You:</strong> ${safeTextHTML}`;
+            } else {
+                messageContent = `<em>${safeTextHTML}</em>`; // System messages already italicized
+            }
+            messageDiv.innerHTML = messageContent; // Now safely set the innerHTML
+
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
 
-  </script>
+        function showTypingIndicator(show) {
+             if (show) {
+                 if (!typingIndicator.classList.contains('visible')) {
+                     typingIndicator.classList.add('visible');
+                     chatBox.scrollTop = chatBox.scrollHeight;
+                 }
+            } else {
+                 typingIndicator.classList.remove('visible');
+            }
+        }
+
+        appendMessage("system", "Connecting...");
+        userInput.disabled = true;
+        connectWebSocket();
+
+    </script>
 </body>
 </html>

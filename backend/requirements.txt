@@ -3,4 +3,6 @@ uvicorn
 python-dotenv
 langgraph
 groq
+websockets
+logging
 
