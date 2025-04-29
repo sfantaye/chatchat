@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChatChat – Lodestone Support</title>
+</head>
+<body>
+  <div class="chat-container">
+    <header>
+      <h1>💬 ChatChat</h1>
+      <p>Welcome to Lodestone's support chat. Ask me anything about Lodestone!</p>
+    </header>
+
+    <div id="chat-box" class="chat-box"></div>
+
+    <div id="typing-indicator" class="typing-indicator" style="display: none;">
+      Alex is typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </div>
+
+    <form id="chat-form" class="chat-form">
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Type your message..."
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+
+const socket = new WebSocket("ws://localhost:8000/ws/guest123");
+
+socket.onmessage = function (event) {
+    if (event.data === "__typing__") {
+        showTypingIndicator(true);
+    } else {
+        showTypingIndicator(false);
+        appendMessage("bot", event.data);
+    }
+};
+
+document.getElementById("send-btn").addEventListener("click", function () {
+    const input = document.getElementById("user-input");
+    const text = input.value.trim();
+    if (text) {
+        appendMessage("user", text);
+        socket.send(text);
+        input.value = "";
+    }
+});
+
+function appendMessage(sender, text) {
+    const container = document.getElementById("chat-container");
+    const msg = document.createElement("div");
+    msg.classList.add("message", sender);
+    msg.innerHTML = sender === "bot" 
+        ? `<strong>Alex (Lodestone):</strong> ${text}`
+        : `<strong>You:</strong> ${text}`;
+    container.appendChild(msg);
+    container.scrollTop = container.scrollHeight;
+}
+
+function showTypingIndicator(show) {
+    const typing = document.getElementById("typing-indicator");
+    typing.style.display = show ? "block" : "none";
+}
+
+
+  </script>
+</body>
+</html>
