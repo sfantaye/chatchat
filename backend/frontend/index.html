@@ -3,306 +3,505 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>✨ ChatChat – Lodestone Support ✨</title>
+    <title>🌌 ChatChat 🌌</title> 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- CSS remains largely the same as the previous 'widget' version --- */
+        /* Minimal adjustments if any, focused on ensuring visibility states are correct */
         :root {
-          --primary-color: #007bff;
-          --secondary-color: #f0f4f8;
-          --background-color: #ffffff;
-          --text-color: #333;
-          --user-message-bg: var(--primary-color);
-          --user-message-text: #ffffff;
-          --bot-message-bg: var(--secondary-color);
-          --bot-message-text: #333;
-          --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-          --border-radius: 15px;
-          --input-bg: #f9f9f9;
+          /* Palette Remains Consistent */
+          --rift-primary: #6A0DAD; /* Deep Purple */
+          --rift-secondary: #00ffff; /* Cyan Electric (Accent) */
+          --rift-tertiary: #FF69B4; /* Hot Pink (Accent) */
+          --rift-background: #0A0510;
+          --rift-text: #f8f8ff; /* Ghost White */
+          --user-msg-bg: linear-gradient(135deg, rgba(106, 13, 173, 0.92), rgba(75, 10, 120, 0.95));
+          --bot-msg-bg: linear-gradient(-135deg, rgba(10, 40, 70, 0.92), rgba(10, 60, 80, 0.95));
+          --user-energy-start: var(--rift-primary);
+          --user-energy-end: var(--rift-tertiary);
+          --bot-energy-start: var(--rift-secondary);
+          --bot-energy-end: #7fffd4;
+          --container-border: linear-gradient(45deg, var(--rift-primary), var(--rift-secondary), var(--rift-tertiary), var(--rift-primary));
+          --container-shadow:
+            0 0 15px rgba(106, 13, 173, 0.6),
+            0 0 20px rgba(0, 255, 255, 0.3),
+            inset 0 0 10px rgba(255, 255, 255, 0.06);
+          --glitch-color-1: rgba(0, 255, 255, 0.7);
+          --glitch-color-2: rgba(255, 105, 180, 0.7);
+          --widget-size: 360px; /* Chat width */
+          --widget-height: 550px; /* Chat height */
+          --toggle-size: 60px; /* Button size */
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         html, body {
-            height: 100%; font-family: 'Poppins', sans-serif; background-color: #e9eef2;
-            display: flex; justify-content: center; align-items: center;
+            height: 100%; font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #1c0a30, var(--rift-primary), var(--rift-secondary), var(--rift-tertiary), #300a1c, var(--rift-background));
+            background-size: 600% 600%;
+            animation: gradientFlow 25s ease infinite;
+            overflow: hidden;
+            position: relative;
         }
+        @keyframes gradientFlow { /* Keep */
+            0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }
+        }
+        body::before { /* Keep Particle Effect */
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 0;
+            background-image: radial-gradient(var(--rift-text) 0.5px, transparent 0.5px); background-size: 70px 70px; opacity: 0.07;
+            animation: particleFlow 90s linear infinite;
+        }
+        @keyframes particleFlow { from { background-position: 0 0; } to { background-position: -1400px 700px; } }
+
+
+        /* --- Background Effects Container (Keep) --- */
+        .background-effects {
+            position: absolute; top: 5vh; left: 5vw; width: 65vw; height: 80vh;
+            pointer-events: none; z-index: 1; overflow: hidden;
+            border: 1px dashed rgba(106, 13, 173, 0.2);
+        }
+        .bg-text { /* Keep Styling */
+            position: absolute; font-family: 'Poppins', sans-serif; color: var(--rift-primary);
+            opacity: 0.3; white-space: nowrap; font-weight: 300; text-shadow: 0 0 5px var(--rift-secondary);
+        }
+        .bg-text.flow-1 { font-size: 1.5em; top: 10%; left: 10%; animation: flowLeftRight 20s linear infinite alternate; }
+        .bg-text.flow-2 { font-size: 1em; top: 30%; right: 5%; animation: flowUpDown 15s linear infinite alternate; color: var(--rift-secondary); opacity: 0.2;}
+        .bg-text.glitchy { font-size: 2.5em; bottom: 15%; left: 20%; font-weight: 700; letter-spacing: 3px; animation: bgGlitchText 4s steps(3, end) infinite alternate; color: var(--rift-tertiary); opacity: 0.4;}
+        .bg-text.coords { font-size: 0.9em; top: 5%; right: 5%; color: var(--rift-text); opacity: 0.15; animation: coordFlicker 1s steps(2, start) infinite; }
+        /* Keep Keyframes for background text */
+        @keyframes flowLeftRight { from { transform: translateX(-20px); } to { transform: translateX(20px); } }
+        @keyframes flowUpDown { from { transform: translateY(-15px); } to { transform: translateY(15px); } }
+        @keyframes bgGlitchText { /* etc. */
+            0%, 100% { transform: skewX(0); opacity: 0.4; text-shadow: 0 0 5px var(--rift-tertiary); }
+            25% { transform: skewX(-3deg); opacity: 0.3; text-shadow: 2px 0 var(--glitch-color-1); }
+            50% { transform: skewX(3deg); opacity: 0.5; text-shadow: -2px 0 var(--glitch-color-2); }
+            75% { transform: skewX(0deg); opacity: 0.35; text-shadow: none; }
+        }
+        @keyframes coordFlicker { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.1; } }
+
+
+        /* --- Chat Toggle Button (Keep) --- */
+        #chat-toggle {
+            position: fixed; bottom: 20px; right: 20px; width: var(--toggle-size); height: var(--toggle-size);
+            background: radial-gradient(ellipse at center, var(--rift-primary) 0%, #3a065a 70%);
+            border: 2px solid var(--rift-secondary); border-radius: 50%;
+            box-shadow: 0 0 15px var(--rift-primary), 0 0 25px var(--rift-secondary), 0 0 3px white inset;
+            display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 1001;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        #chat-toggle::before { content: '✧'; font-size: calc(var(--toggle-size) * 0.5); color: var(--rift-secondary); text-shadow: 0 0 8px var(--rift-secondary); line-height: 1; }
+        #chat-toggle:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--rift-primary), 0 0 35px var(--rift-secondary), 0 0 5px white inset; }
+        #chat-toggle:active { transform: scale(0.95); }
+
+
+        /* --- Chat Container (Widget Mode - Ensure Correct Styling for visibility toggle) --- */
         .chat-container {
-            width: 100%; max-width: 450px; height: 85vh; max-height: 700px;
-            background-color: var(--background-color); border-radius: var(--border-radius);
-            box-shadow: var(--container-shadow); display: flex; flex-direction: column;
-            overflow: hidden; transition: all 0.3s ease;
+            position: fixed; bottom: calc(var(--toggle-size) + 30px); right: 20px;
+            width: var(--widget-size); height: var(--widget-height);
+            max-width: 90vw; max-height: 75vh; background: rgba(15, 8, 35, 0.92);
+            backdrop-filter: blur(8px); border-radius: 12px 4px 12px 4px; border: 2px solid transparent;
+            border-image: var(--container-border) 1 stretch; box-shadow: var(--container-shadow);
+            display: flex; flex-direction: column; overflow: hidden; z-index: 1000;
+            /* Initial State: Hidden */
+            opacity: 0;
+            transform: scale(0.8) translateY(30px) translateX(10px); /* Adjusted transform for origin */
+            transform-origin: bottom right;
+            visibility: hidden; /* Use visibility for better accessibility/state handling */
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0s linear 0.3s; /* Delay visibility change */
         }
+        /* Active State: Visible */
+        .chat-container.active {
+            opacity: 1;
+            transform: scale(1) translateY(0) translateX(0);
+            visibility: visible; /* Make visible */
+            pointer-events: auto;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0s linear 0s; /* Visibility immediately active */
+        }
+
+        /* Optional Scanlines (Keep as before) */
+         .chat-container::after {
+             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+             background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.05) 50%); background-size: 100% 3px;
+             z-index: 3; pointer-events: none; opacity: 0.3; animation: scanlinesWidget 50s linear infinite;
+         }
+          @keyframes scanlinesWidget { to { background-position: 0 100%; } }
+
+        /* --- Header, Chatbox, Messages, Form styling (Keep largely the same as previous widget version) --- */
         header {
-            background: linear-gradient(135deg, var(--primary-color), #0056b3);
-            color: white; padding: 15px 20px; /* Adjusted padding slightly */
-            text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            flex-shrink: 0;
-            position: relative; /* Needed for potential absolute positioning inside if required */
-        }
-        header h1 { font-size: 1.5em; font-weight: 600; margin-bottom: 5px; letter-spacing: 1px; }
-        header p { font-size: 0.9em; opacity: 0.9; font-weight: 300; margin-bottom: 10px; /* Added margin-bottom for spacing */ }
+             padding: 12px 15px; flex-shrink: 0;
+             background: linear-gradient(90deg, var(--rift-secondary), var(--rift-primary), var(--rift-secondary));
+              -webkit-background-clip: text; background-clip: text; color: transparent; text-align: center;
+             z-index: 2; position: relative; border-bottom: 1px solid rgba(106, 13, 173, 0.4);
+         }
+        header h1 { font-size: 1.3em; font-weight: 600; margin: 0; padding: 0; letter-spacing: 1px; text-shadow: 0 0 4px var(--rift-secondary); animation: none; }
+        header p, .developer-credit { display: none; }
 
-        /* --- NEW CSS FOR DEVELOPER TEXT & SHIMMER --- */
-        .developer-credit {
-            font-size: 1.0em; /* Make it large */
-            font-weight: 500;
-            margin-top: 10px; /* Space from elements above */
-            text-align: center;
-        }
-        .developer-credit a {
-            text-decoration: none;
-            color: #ffffff; /* Initial color */
-            background: linear-gradient(to right, #ffd700, #ffffff, #ffd700); /* Gold/White gradient for shimmer */
-            background-size: 200% auto;
-            color: #000; /* Use color:transparent if text color should be bg */
-            background-clip: text;
-             -webkit-background-clip: text; /* For older webkit browsers */
-             -webkit-text-fill-color: transparent; /* Use background for text color */
+        .chat-box { /* Keep styling */
+             flex-grow: 1; padding: 15px 10px; overflow-y: auto; background: transparent;
+             display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; z-index: 1;
+         }
+        .chat-box::-webkit-scrollbar { width: 6px; } /* Keep */
+         .chat-box::-webkit-scrollbar-track { background: transparent; }
+         .chat-box::-webkit-scrollbar-thumb { background: linear-gradient(var(--rift-primary), var(--rift-secondary)); border-radius: 3px; border: none; box-shadow: 0 0 4px var(--rift-secondary); }
 
-            animation: shimmer 3s linear infinite; /* Apply the shimmer animation */
-            display: inline-block; /* Needed for transform/animations? Not always */
-            opacity: 0.9; /* Slightly less intense than main text */
-            transition: opacity 0.3s ease; /* Smooth hover */
+        .message { /* Keep styling */
+            padding: 9px 14px; max-width: 85%; line-height: 1.5; font-size: 0.92em; color: var(--rift-text);
+            position: relative; border-radius: 8px 2px 8px 2px; box-shadow: 1px 1px 0px var(--glitch-color-1), -1px -1px 0px var(--glitch-color-2), 1px 2px 6px rgba(0,0,0,0.6);
+             opacity: 0; transform: translateY(10px) scale(0.98); animation: materialize 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
-        .developer-credit a:hover {
-            opacity: 1;
-             /* Optional: could pause animation or change color on hover */
-        }
+         @keyframes materialize { 0% { opacity: 0; filter: blur(1px); transform: translateY(10px) scale(0.98); } 100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); } }
+        .message.user { background: var(--user-msg-bg); align-self: flex-end; } /* Keep */
+        .message.bot { background: var(--bot-msg-bg); align-self: flex-start; } /* Keep */
+        .message strong { font-weight: 600; margin-bottom: 3px; font-size: 0.85em; color: #f0f8ff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.5); text-transform: uppercase; letter-spacing: 0.5px; } /* Keep */
+        .message.system { font-size: 0.85em; color: var(--rift-secondary); opacity: 0.7; padding: 5px 0; text-shadow: 0 0 3px var(--rift-secondary); text-align: center; background: transparent; border: none; animation: none; box-shadow: none; align-self: center; width: 100%; } /* Keep */
 
-        /* Shimmer Animation */
-        @keyframes shimmer {
-          to {
-            background-position: -200% center; /* Move the background gradient */
-          }
+        .typing-indicator { /* Keep styling */
+            padding: 8px 10px; font-size: 0.85em; color: var(--rift-text); align-self: flex-start;
+            text-shadow: 0 0 3px var(--rift-secondary); opacity: 0; height: 0; overflow: hidden; transition: opacity 0.2s ease, height 0.2s ease;
         }
-        /* --- END OF NEW CSS --- */
+        .typing-indicator.visible { opacity: 1; height: auto; padding: 8px 10px; animation: none; } /* Keep */
+        .typing-indicator .dot { width: 6px; height: 6px; margin-left: 4px; background-color: var(--rift-secondary); opacity: 0.9; animation: glitchBlockVisible 1s steps(2, jump-none) infinite alternate; vertical-align: middle; border-radius: 1px; } /* Keep */
+        .typing-indicator .dot:nth-child(2) { background-color: var(--rift-tertiary); animation-delay: 0.2s; }
+        .typing-indicator .dot:nth-child(3) { background-color: var(--rift-primary); animation-delay: 0.4s; }
+         @keyframes glitchBlockVisible { to { transform: translate(1px, -1px); opacity: 0.7; } } /* Keep */
 
-        .chat-box {
-            flex-grow: 1; padding: 20px 15px; overflow-y: auto; background-color: var(--background-color);
-            display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;
+        .chat-form { /* Keep styling */
+            padding: 10px; flex-shrink: 0; background: rgba(5, 2, 10, 0.9);
+            border-top: 1px solid rgba(106, 13, 173, 0.5); gap: 8px; z-index: 2; display: flex; align-items: center;
         }
-        .chat-box::-webkit-scrollbar { width: 6px; }
-        .chat-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .chat-box::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-        .chat-box::-webkit-scrollbar-thumb:hover { background: #aaa; }
-        .message {
-            padding: 10px 15px; border-radius: var(--border-radius); max-width: 75%;
-            line-height: 1.4; font-size: 0.95em; word-wrap: break-word;
-            opacity: 0; transform: translateY(10px); animation: fadeIn 0.4s ease forwards;
+        #user-input { /* Keep styling */
+             border: 1px solid var(--rift-primary); border-radius: 15px; padding: 8px 15px;
+             font-size: 0.9em; background-color: rgba(15, 8, 30, 0.85); color: var(--rift-text);
+             caret-color: var(--rift-secondary); box-shadow: inset 0 0 4px rgba(106, 13, 173, 0.5);
+             flex-grow: 1; transition: border-color 0.3s ease, box-shadow 0.3s ease; outline: none;
         }
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-        .message.user {
-            background-color: var(--user-message-bg); color: var(--user-message-text);
-            align-self: flex-end; border-bottom-right-radius: 5px;
+         #user-input:focus { border-color: var(--rift-secondary); box-shadow: inset 0 0 6px rgba(0, 255, 255, 0.5), 0 0 3px var(--rift-secondary); } /* Keep */
+
+        .chat-form button { /* Keep styling */
+             background: var(--rift-primary); color: var(--rift-text); border: 1px solid var(--rift-secondary);
+             border-radius: 50%; width: 36px; height: 36px; font-size: 1.1em; cursor: pointer;
+             flex-shrink: 0; display: flex; justify-content: center; align-items: center;
+             transition: background-color 0.3s ease, transform 0.1s ease;
+             box-shadow: 0 0 5px var(--rift-secondary); animation: none; padding: 0;
         }
-        .message.bot {
-            background-color: var(--bot-message-bg); color: var(--bot-message-text);
-            align-self: flex-start; border-bottom-left-radius: 5px;
+         .chat-form button::before { content: '➤'; font-size: 16px; line-height: 1; text-shadow: none; } /* Keep */
+         .chat-form button:hover { background-color: var(--rift-tertiary); box-shadow: 0 0 8px var(--rift-secondary), 0 0 5px var(--rift-tertiary); } /* Keep */
+         .chat-form button:active { transform: scale(0.94); } /* Keep */
+
+        /* Close Button Styling (Keep) */
+        .chat-close-button {
+             position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; /* Slightly larger */
+             background: none; border: none; color: rgba(255,255,255,0.6); font-size: 24px; /* Larger icon */
+             line-height: 1; cursor: pointer; z-index: 4; padding: 0; transition: color 0.2s ease, transform 0.2s ease;
         }
-         .message.system { /* Style for system messages like errors/connection */
-            font-style: italic;
-            color: #888;
-            font-size: 0.85em;
-            text-align: center;
-            background-color: transparent;
-            width: 100%;
-            max-width: 100%;
-            align-self: center;
-            padding: 5px 0;
-        }
-        .message strong {
-            font-weight: 600; display: block; margin-bottom: 3px; font-size: 0.8em; opacity: 0.8;
-        }
-        .message.bot strong { color: var(--primary-color); }
-        .typing-indicator {
-            padding: 10px 15px; font-style: italic; color: #888; font-size: 0.9em;
-            align-self: flex-start; opacity: 0; height: 0; /* Start hidden and with no height */
-            transition: opacity 0.3s ease, height 0.3s ease;
-            overflow: hidden; /* Prevent content from showing during height transition */
-        }
-        .typing-indicator.visible {
-            opacity: 1;
-            height: auto; /* Adjust to content height */
-             padding: 10px 15px; /* Restore padding when visible */
-        }
-        .typing-indicator .dot {
-            display: inline-block; width: 4px; height: 4px; background-color: #aaa;
-            border-radius: 50%; margin-left: 2px; animation: blink 1.4s infinite both;
-        }
-        .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
-        .chat-form {
-            display: flex; padding: 15px; border-top: 1px solid #e0e0e0;
-            background-color: #fdfdfd; flex-shrink: 0;
-        }
-        #user-input {
-            flex-grow: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px;
-            font-size: 1em; margin-right: 10px; outline: none;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease; background-color: var(--input-bg);
-        }
-        #user-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); }
-        .chat-form button {
-            background-color: var(--primary-color); color: white; border: none; border-radius: 50%;
-            width: 40px; height: 40px; font-size: 1.2em; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
-        .chat-form button:hover { background-color: #0056b3; }
-        .chat-form button:active { transform: scale(0.95); }
-        .chat-form button::before { content: '➤'; font-size: 16px; line-height: 1; }
-        @media (max-width: 500px) {
-            body { align-items: stretch; }
-            .chat-container { max-width: 100%; height: 100vh; max-height: 100%; border-radius: 0; box-shadow: none; }
-            header { padding: 15px; }
-            header h1 { font-size: 1.3em; }
-             /* Adjust developer credit font size on smaller screens */
-            .developer-credit { font-size: 0.85em; margin-top: 8px; }
-            .chat-box { padding: 15px 10px; } .chat-form { padding: 10px; }
-            #user-input { padding: 8px 12px; } .chat-form button { width: 36px; height: 36px; }
+        .chat-close-button:hover { color: var(--rift-tertiary); transform: scale(1.1);}
+        .chat-close-button::before { content: '×'; }
+
+        /* Responsive (Keep previous adjustments) */
+        @media (max-width: 480px) {
+             :root { --widget-size: 94vw; --widget-height: 70vh; --toggle-size: 50px; }
+              #chat-toggle { bottom: 15px; right: 15px; }
+             .chat-container { bottom: calc(var(--toggle-size) + 20px); right: 15px; }
+             .background-effects { display: none; }
+             header h1 { font-size: 1.2em; }
+             .message { font-size: 0.9em; }
+             #user-input { font-size: 0.85em; }
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <header>
-            <h1>✨ ChatChat ✨</h1>
-            <p>Hi there! I'm Sintayehu, your Lodestone guide. How can I help?</p>
 
-            <!-- --- NEW DEVELOPER CREDIT ELEMENT --- -->
-            <div class="developer-credit">
-                <a href="https://sintayehu.dev" target="_blank" rel="noopener noreferrer">
-                      Sintayehu.dev<br/>
-                    Developed by: Sintayehu Fantaye
-                </a>
-            </div>
-            <!-- --- END OF NEW ELEMENT --- -->
+    <!-- Background Decorative Elements -->
+    <div class="background-effects">
+        <div class="bg-text flow-1">ChatChat::ACTIVE</div>
+        <div class="bg-text flow-2">// LODESTONE ENTITY CONNECTION ESTABLISHED...</div>
+        <div class="bg-text glitchy">BY SINTAYEHU FANTAYE</div>
+        <div class="bg-text coords" id="bg-coords">X:.... Y:.... Z:....</div>
+    </div>
+    <div class="bg-text glitchy">SINTAYEHU.DEV</div>
 
-        </header>
 
+    <!-- Chat Toggle Button -->
+    <div id="chat-toggle" title="Open Chat"></div>
+
+    <!-- The Chat Widget Container (Ensure ID is present) -->
+    <div class="chat-container" id="chat-widget">
+        <button class="chat-close-button" aria-label="Close Chat" id="chat-close"></button>
+        <header><h1>Lodestone Support</h1></header>
         <div id="chat-box" class="chat-box">
-            <!-- Initial bot message for immediate feedback -->
-            <div class="message bot">
-                <strong>Sintayehu from Lodestone:</strong> Welcome! Feel free to ask me anything about Lodestone. 😊
-            </div>
+            <div class="message bot"><strong>Sintayehu from Lodestone:</strong> Welcome to Lodestone customer support. Feel free to ask anything.</div>
         </div>
-
-        <div id="typing-indicator" class="typing-indicator">
-            Sintayehu is typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
-        </div>
-
+        <div id="typing-indicator" class="typing-indicator">Processing<span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
         <form id="chat-form" class="chat-form">
-            <input
-                type="text"
-                id="user-input"
-                placeholder="Ask Sintayehu something..."
-                autocomplete="off"
-                required
-                aria-label="Your message"
-            />
-            <button type="submit" aria-label="Send Message"></button>
+            <input type="text" id="user-input" placeholder="Message..." autocomplete="off" required aria-label="Your message"/>
+            <button type="submit" aria-label="Send"></button>
         </form>
     </div>
 
     <script>
-        const chatBox = document.getElementById("chat-box");
-        const chatForm = document.getElementById("chat-form");
-        const userInput = document.getElementById("user-input");
-        const typingIndicator = document.getElementById("typing-indicator");
-        let socket = null;
+        // Wrap all script logic in DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("ChatChat DOM Fully Loaded");
 
-        function connectWebSocket() {
-            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${wsProtocol}//${window.location.host}/ws/chat`;
-            console.log(`Attempting to connect to: ${wsUrl}`);
-            socket = new WebSocket(wsUrl);
+            // --- Element Selection ---
+            const chatToggle = document.getElementById('chat-toggle');
+            const chatWidget = document.getElementById('chat-widget');
+            const chatClose = document.getElementById('chat-close');
+            const chatBox = document.getElementById("chat-box");
+            const chatForm = document.getElementById("chat-form");
+            const userInput = document.getElementById("user-input");
+            const typingIndicator = document.getElementById("typing-indicator");
+            const bgCoordsElement = document.getElementById('bg-coords');
 
-            socket.onopen = function(event) {
-                console.log("WebSocket Connection Opened!");
-                appendMessage("system", "Connected to Sintayehu!");
-                userInput.disabled = false;
-                userInput.focus();
-            };
+            // --- State Variables ---
+            let socket = null;
+            let isConnecting = false;
+            let connectTimeout = null;
+            let coordsInterval = null; // To control the coords update
 
-            socket.onmessage = function (event) {
-                if (event.data === "__typing__") {
-                    showTypingIndicator(true);
-                } else {
-                    showTypingIndicator(false);
-                    setTimeout(() => { appendMessage("bot", event.data); }, 150);
+            // --- Check if elements exist ---
+             if (!chatToggle || !chatWidget || !chatClose || !userInput || !chatForm || !chatBox || !typingIndicator) {
+                 console.error("[ChatChat: One or more essential HTML elements not found. Check IDs.");
+                 // Display error to user?
+                 // document.body.innerHTML = '<p style="color: red; font-size: 20px;">Chat initialization failed. Please contact support.</p>';
+                 return; // Stop script execution if critical elements missing
+             }
+
+            // --- WebSocket and Connection Logic ---
+            function ensureConnection() {
+                clearTimeout(connectTimeout); // Clear pending reconnects
+
+                if (!chatWidget.classList.contains('active')) {
+                     console.log("[Connection Check] Widget is not active.");
+                     // Optional: consider closing socket if inactive for a long time
+                     return;
                 }
-            };
 
-            socket.onclose = function(event) {
-                console.warn("WebSocket Connection Closed.", event);
-                showTypingIndicator(false);
-                appendMessage("system", `Connection lost. ${event.reason || 'Trying to reconnect...'}`);
-                userInput.disabled = true;
-                setTimeout(connectWebSocket, 5000);
-            };
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    console.log("[Connection Check] Already connected.");
+                    if (userInput) userInput.disabled = false;
+                    // Don't refocus aggressively here, handle focus on toggle/open
+                    return;
+                }
 
-            socket.onerror = function(error) {
-                console.error("WebSocket Error:", error);
-                appendMessage("system", "Connection error. Could not reach the chat server.");
-                showTypingIndicator(false);
-                userInput.disabled = true;
-            };
-        }
-
-        chatForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            const text = userInput.value.trim();
-            if (text && socket && socket.readyState === WebSocket.OPEN) {
-                appendMessage("user", text);
-                socket.send(text);
-                userInput.value = "";
-                userInput.focus();
-                showTypingIndicator(false);
-            } else if (!socket || socket.readyState !== WebSocket.OPEN) {
-                appendMessage("system", "Cannot send message. Not connected.");
-            }
-        });
-
-        function appendMessage(sender, text) {
-            const messageDiv = document.createElement("div");
-            messageDiv.classList.add("message", sender);
-
-            // IMPORTANT SECURITY FIX: Escape HTML properly before inserting!
-            const tempDiv = document.createElement('div'); // Use a temporary element for safe text assignment
-            tempDiv.textContent = text; // Let the browser handle safe text assignment
-            const safeTextHTML = tempDiv.innerHTML; // Get the browser-escaped HTML
-
-            let messageContent = '';
-            if (sender === "bot") {
-                 // Ensure the bot name is consistent here too if needed
-                 messageContent = `<strong>Sintayehu (Lodestone):</strong> ${safeTextHTML}`;
-            } else if (sender === "user") {
-                messageContent = `<strong>You:</strong> ${safeTextHTML}`;
-            } else {
-                messageContent = `<em>${safeTextHTML}</em>`; // System messages already italicized
-            }
-            messageDiv.innerHTML = messageContent; // Now safely set the innerHTML
-
-            chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-
-        function showTypingIndicator(show) {
-             if (show) {
-                 if (!typingIndicator.classList.contains('visible')) {
-                     typingIndicator.classList.add('visible');
-                     chatBox.scrollTop = chatBox.scrollHeight;
+                 if (socket && (socket.readyState === WebSocket.CONNECTING)) {
+                    console.log("[Connection Check] Already connecting...");
+                    isConnecting = true; // Ensure flag is set
+                    return;
                  }
-            } else {
-                 typingIndicator.classList.remove('visible');
+
+                 if (isConnecting) {
+                    console.log("[Connection Check] Connection attempt flagged as in progress.");
+                    return;
+                 }
+
+
+                 console.log("[Connection Check] Conditions met. Attempting connection.");
+                 isConnecting = true;
+                 if(userInput) userInput.disabled = true; // Disable input while connecting
+                 if(typingIndicator) typingIndicator.classList.remove('visible'); // Hide typing indicator
+
+                 // Add a connecting message only if not already present
+                 if (!chatBox.querySelector('.connecting-msg')) {
+                    const connectingMsg = document.createElement('div');
+                    connectingMsg.classList.add('message', 'system', 'connecting-msg'); // Add specific class
+                    connectingMsg.textContent = 'Connecting to Rift...';
+                    chatBox.appendChild(connectingMsg);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                 }
+
+                 connectWebSocket();
             }
-        }
 
-        appendMessage("system", "Connecting...");
-        userInput.disabled = true;
-        connectWebSocket();
+             function connectWebSocket() {
+                 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                 const wsUrl = `${wsProtocol}//${window.location.host}/ws/chat`; // Adjust if your endpoint differs
+                 console.log(`[WebSocket] Attempting connection to: ${wsUrl}`);
 
+                  // Double check widget status before creating socket
+                 if (!chatWidget.classList.contains('active')) {
+                    console.log("[WebSocket] Connection cancelled: Widget closed before socket creation.");
+                     isConnecting = false;
+                     removeConnectingMessage();
+                     return;
+                 }
+
+                 socket = new WebSocket(wsUrl);
+
+                 socket.onopen = function(event) {
+                    console.log("[WebSocket] Connection Opened!");
+                     isConnecting = false;
+                     removeConnectingMessage();
+                    if(chatWidget.classList.contains('active')) { // Ensure widget is still open
+                        appendMessage("system", ">>> >>>> Online <<< <<<");
+                        if (userInput) {
+                             userInput.disabled = false;
+                             userInput.focus(); // Focus now that we are connected and visible
+                         }
+                    } else {
+                        console.log("[WebSocket] Connected, but widget was closed.");
+                        if (userInput) userInput.disabled = true;
+                    }
+                 };
+
+                 socket.onmessage = function (event) {
+                     if (!chatWidget.classList.contains('active')) return; // Don't process if hidden
+                     if (event.data === "__typing__") { showTypingIndicator(true); }
+                     else { showTypingIndicator(false); setTimeout(() => { appendMessage("bot", event.data); }, 150); }
+                 };
+
+                 socket.onclose = function(event) {
+                    console.warn(`[WebSocket] Connection Closed. Code: ${event.code}, Reason: ${event.reason}`);
+                     isConnecting = false;
+                     socket = null; // Clear the socket variable
+                     removeConnectingMessage();
+
+                     if (chatWidget.classList.contains('active')) {
+                        showTypingIndicator(false);
+                        appendMessage("system", `*** Signal Lost [${event.code}] Attempting Reconnect... ***`);
+                        if(userInput) userInput.disabled = true;
+
+                         // Schedule reconnect
+                         clearTimeout(connectTimeout);
+                         connectTimeout = setTimeout(() => {
+                            if (chatWidget.classList.contains('active')) { // Only retry if still open
+                                 console.log("[WebSocket] Reconnect timer fired.");
+                                 ensureConnection();
+                            } else {
+                                 console.log("[WebSocket] Widget closed, cancelling reconnect attempt.");
+                            }
+                         }, 5000 + Math.random() * 2000);
+                    } else {
+                        console.log("[WebSocket] Connection closed while widget inactive.");
+                    }
+                 };
+
+                 socket.onerror = function(error) {
+                    console.error("[WebSocket] Error:", error);
+                     isConnecting = false;
+                     socket = null; // Clear the socket variable on error too
+                     removeConnectingMessage();
+
+                     if (chatWidget.classList.contains('active')) {
+                        showTypingIndicator(false);
+                        appendMessage("system", "!!! Link Error - Connection Failed !!!");
+                         if(userInput) userInput.disabled = true;
+                     }
+                 };
+             }
+
+            function removeConnectingMessage() {
+                const connectingMsg = chatBox.querySelector('.connecting-msg');
+                if (connectingMsg) {
+                    connectingMsg.remove();
+                }
+            }
+
+             // --- Chat UI Logic ---
+            function appendMessage(sender, text) {
+                 if (!chatWidget.classList.contains('active')) return;
+                 const messageDiv = document.createElement("div");
+                 messageDiv.classList.add("message", sender);
+                 const tempDiv = document.createElement('div'); tempDiv.textContent = text;
+                 const safeTextHTML = tempDiv.innerHTML;
+                 let messageContent = '';
+                 if (sender === "bot") { messageContent = `<strong>Sintayehu:</strong> ${safeTextHTML}`; }
+                 else if (sender === "user") { messageContent = `<strong>YOU:</strong> ${safeTextHTML}`; }
+                 else { messageContent = safeTextHTML; }
+                 messageDiv.innerHTML = messageContent; chatBox.appendChild(messageDiv);
+                 requestAnimationFrame(() => { chatBox.scrollTop = chatBox.scrollHeight; });
+             }
+
+            function showTypingIndicator(show) {
+                 if (!chatWidget.classList.contains('active')) {
+                     if (typingIndicator.classList.contains('visible')) {
+                         typingIndicator.classList.remove('visible'); // Ensure hidden if widget closes
+                     }
+                     return;
+                 }
+                  if (show) { if (!typingIndicator.classList.contains('visible')) { typingIndicator.classList.add('visible'); requestAnimationFrame(() => { chatBox.scrollTop = chatBox.scrollHeight; }); } }
+                  else { typingIndicator.classList.remove('visible'); }
+             }
+
+            // --- Event Listeners ---
+             chatToggle.addEventListener('click', (e) => {
+                 console.log("Toggle Clicked");
+                 e.stopPropagation();
+                 const currentlyActive = chatWidget.classList.contains('active');
+
+                  if (currentlyActive) {
+                     chatWidget.classList.remove('active');
+                     console.log("Widget Deactivated");
+                      // Optional: disconnect / cancel reconnect timeout immediately?
+                     // clearTimeout(connectTimeout);
+                     // if (socket && socket.readyState === WebSocket.OPEN) socket.close();
+                 } else {
+                    chatWidget.classList.add('active');
+                     console.log("Widget Activated");
+                     ensureConnection(); // Attempt to connect if not already
+                     // Focus *after* transition and potentially *after* connection resolves
+                     setTimeout(() => {
+                         if (userInput && !userInput.disabled) {
+                            userInput.focus();
+                             console.log("Input Focused");
+                         }
+                     }, 350); // Align with transition duration
+                 }
+             });
+
+            chatClose.addEventListener('click', () => {
+                console.log("Close Button Clicked");
+                chatWidget.classList.remove('active');
+                 // Optional: Disconnect/Cancel Tiemout
+            });
+
+            document.addEventListener('click', (e) => {
+                 // Close if click is outside widget AND outside toggle button
+                 if (chatWidget.classList.contains('active') &&
+                     !chatWidget.contains(e.target) &&
+                     !chatToggle.contains(e.target)) {
+                     console.log("Outside Click Detected");
+                     chatWidget.classList.remove('active');
+                      // Optional: Disconnect/Cancel Tiemout
+                 }
+             });
+
+             chatForm.addEventListener('submit', function (event) {
+                 event.preventDefault();
+                 if (!chatWidget.classList.contains('active')) return;
+
+                 const text = userInput.value.trim();
+                 if (text && socket && socket.readyState === WebSocket.OPEN) {
+                    appendMessage("user", text); socket.send(text);
+                    userInput.value = ""; userInput.focus(); showTypingIndicator(false);
+                 } else if (!socket || socket.readyState !== WebSocket.OPEN) {
+                     appendMessage("system", "--- Connection Offline ---");
+                     console.log("Submit failed: No active connection.");
+                     // Optionally trigger a connection attempt here
+                     // ensureConnection();
+                 }
+             });
+
+             // --- Background Effects ---
+            function updateCoords() {
+                 if (bgCoordsElement) {
+                     const x = Math.random().toString(16).substring(2, 6).toUpperCase();
+                     const y = Math.random().toString(16).substring(2, 6).toUpperCase();
+                     const z = Math.random().toString(16).substring(2, 6).toUpperCase();
+                     bgCoordsElement.textContent = `X:${x} Y:${y} Z:${z}`;
+                 }
+            }
+            coordsInterval = setInterval(updateCoords, 2000); // Start updating coords
+
+            // --- Initial State ---
+            if(userInput) userInput.disabled = true; // Start disabled
+            console.log("[CHatCha: Ready for interaction.");
+
+        }); // End of DOMContentLoaded
     </script>
+
 </body>
 </html>
