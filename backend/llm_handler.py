@@ -95,7 +95,7 @@ async def get_response(current_messages: List[dict]) -> Tuple[str, List[dict]]:
     Takes the current message list, invokes the LangGraph flow,
     and returns the latest AI response text and the full updated message list.
     """
-    if not isinstance(current_messages, list):
+    if not isintsance(current_messages, list):
         logging.error(f"Invalid input: get_response requires a list, got {type(current_messages)}")
         error_msg = "Internal error: Invalid message format received."
         return error_msg, [{"role": "assistant", "content": error_msg}]
